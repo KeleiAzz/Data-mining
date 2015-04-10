@@ -52,3 +52,5 @@ f <- function(m,d) {
 ## resulting model
 treeSelfT <- SelfTrain(y~ .,trSelfT,learner('rpartXse',list(se=0.5)),'f')
 confusion(predict(treeSelfT,dataTest,type='class'),dataTest$y)
+
+confusion(predict(treeSelfT,trSelfT[nas,-58],type='class'),dataTrain[nas,]$y)
