@@ -771,11 +771,12 @@ ho.nb.st <- function(form, train, test, ...) {
            )
 }
 
+#nb.st(train,test)
 
 nb.st.res <- holdOut(learner('ho.nb.st',
                           pars=list(Threshold=0.1,
                                     statsProds=globalStats)),
-                  dataset(Insp ~ .,sales),
+                  dataset(Insp ~ .,sales[1:10000,]),
                   hldSettings(3,0.3,1234,T),
                   itsInfo=TRUE
                   )
@@ -843,9 +844,8 @@ ho.ab.st <- function(form, train, test, ...) {
            )
 }
 ab.st.res <- holdOut(learner('ho.ab.st',
-                          pars=list(Threshold=0.1,
-                                    statsProds=globalStats)),
-                  dataset(Insp ~ .,sales),
+                          pars=list(Threshold=0.1)),
+                  dataset(Insp ~ .,sales[1:10000,]),
                   hldSettings(3,0.3,1234,T),
                   itsInfo=TRUE
                   )
@@ -861,25 +861,25 @@ PTs.ab.st <- aperm(array(unlist(info),dim=c(length(info[[1]]),2,3)),
                 )
 PRcurve(PTs.ab[,,1],PTs.ab[,,2],
         main='PR curve',lty=1,xlim=c(0,1),ylim=c(0,1),
-        avg='vertical')
+        avg='vertical',col='red')
 PRcurve(PTs.orh[,,1],PTs.orh[,,2],
         add=T,lty=1,col='grey',
         avg='vertical')        
 PRcurve(PTs.ab.st[,,1],PTs.ab.st[,,2],
         add=T,lty=2,
-        avg='vertical')        
+        avg='vertical',col='blue')        
 legend('topright',c('AdaBoostM1','ORh','AdaBoostM1-ST'),
-       lty=c(1,1,2),col=c('black','grey','black'))
+       lty=c(1,1,2),col=c('red','grey','blue'))
 CRchart(PTs.ab[,,1],PTs.ab[,,2],
         main='Cumulative Recall curve',lty=1,xlim=c(0,1),ylim=c(0,1),
-        avg='vertical')
+        avg='vertical',col='red')
 CRchart(PTs.orh[,,1],PTs.orh[,,2],
         add=T,lty=1,col='grey',
         avg='vertical')        
 CRchart(PTs.ab.st[,,1],PTs.ab.st[,,2],
         add=T,lty=2,
-        avg='vertical')        
+        avg='vertical',col='blue')        
 legend('bottomright',c('AdaBoostM1','ORh','AdaBoostM1-ST'),
-       lty=c(1,1,2),col=c('black','grey','black'))
+       lty=c(1,1,2),col=c('red','grey','blue'))
 
 

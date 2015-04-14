@@ -41,14 +41,13 @@ ho.ab.st <- function(form, train, test, ...) {
   res <- ab.st(train,test)
   structure(evalOutlierRanking(test,res$rankOrder,...),
             itInfo=list(preds=res$rankScore,
-                        trues=ifelse(test$Insp=='1',1,0)
+                        trues=ifelse(test$y==1,1,0)
             )
   )
 }
 ab.st.res <- holdOut(learner('ho.ab.st',
-                             pars=list(Threshold=0.1,
-                                       statsProds=globalStats)),
-                     dataset(Insp ~ .,sales),
+                             pars=list(Threshold=0.1)),
+                     dataset(y ~ .,dataset),
                      hldSettings(3,0.3,1234,T),
                      itsInfo=TRUE
 )

@@ -2,6 +2,37 @@
 ### Semi-supervised approaches
 ### http://www.dcc.fc.up.pt/~ltorgo/DataMiningWithR/code4.html
 ###################################################
+data(sales)
+BPrule <- function(train,test) {
+  notF <- which(train$Insp != 'fraud')
+  ms <- tapply(train$Uprice[notF],list(Prod=train$Prod[notF]),
+               function(x) {
+                 bp <- boxplot.stats(x)$stats
+                 c(median=bp[3],iqr=bp[4]-bp[2])
+               })
+  ms <- matrix(unlist(ms),length(ms),2,byrow=T,
+               dimnames=list(names(ms),c('median','iqr')))
+  ms[which(ms[,'iqr']==0),'iqr'] <- ms[which(ms[,'iqr']==0),'median']
+  ORscore <- abs(test$Uprice-ms[test$Prod,'median']) /
+    ms[test$Prod,'iqr']
+  return(list(rankOrder=order(ORscore,decreasing=T),
+              rankScore=ORscore))
+}
+
+
+notF <- which(sales$Insp != 'fraud')
+globalStats <- tapply(sales$Uprice[notF],
+                      list(Prod=sales$Prod[notF]),
+                      function(x) {
+                        bp <- boxplot.stats(x)$stats
+                        c(median=bp[3],iqr=bp[4]-bp[2])
+                      })
+globalStats <- matrix(unlist(globalStats),
+                      length(globalStats),2,byrow=T,
+                      dimnames=list(names(globalStats),c('median','iqr')))
+globalStats[which(globalStats[,'iqr']==0),'iqr'] <- 
+  globalStats[which(globalStats[,'iqr']==0),'median']
+
 set.seed(1234) # Just to ensrure you get the same results as in the book
 library(DMwR)
 library(e1071)

@@ -76,7 +76,7 @@ for (i in seq(100,1900,100)){
 }
 
 
-
+#model <- runLearner(learner, form, data[sup, ])
 dataset <- read.csv("data/spambase/data.csv",header=FALSE,sep=";")
 names <- read.csv("data/spambase/names.csv",header=FALSE,sep=";")
 names(dataset) <- sapply((1:nrow(names)),function(i) toString(names[i,1]))
