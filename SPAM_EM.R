@@ -20,10 +20,10 @@ lab <- as.integer(sample$y)
 lab[1:500] <- 0
 
 ret.Rnd <- init.EM(sample, nclass = 2, lab = lab, method = "Rnd.EM", EMC = .EMC.Rnd)
-ret.em <- init.EM(sample, nclass = 2, lab = lab, method = "em.EM")
+#ret.em <- init.EM(sample, nclass = 2, lab = lab, method = "em.EM")#
 
 test <- as.integer(sample[1:500,]$y)
 
-c <- confusion(ret.Rnd$class[1:500], test)
-confusion(ret.em$class[1:500], test)
+confusion(ret.Rnd$class[1:500], test)
+#confusion(ret.em$class[1:500], test)
 
