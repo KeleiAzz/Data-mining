@@ -16,9 +16,9 @@ dataset$y <- as.factor(dataset$y)
 #data.unlabeled[,'y'] <- NA
 #dataTrain <- dataset[ trainIndex,]
 #dataTest  <- dataset[-trainIndex,]
-sample <- sample(nrow(dataset), 600)
-labeled <- sample[1:400]
-dataTest <- sample[401:600]
+sample <- sample(nrow(dataset), 400)
+labeled <- sample[1:200]
+dataTest <- sample[201:400]
 #trainIndex <- createDataPartition(dataset$y, p = .95, list = FALSE, times = 1)
 fixed <- dataset[labeled,]
 others <- dataset[-labeled,]
@@ -26,39 +26,52 @@ others <- dataset[-labeled,]
 
 sup.res1 <- c()
 semi.res1 <- c()
-for (i in seq(1000,4000,100)){
+unsup.res1 <- c()
+for (i in seq(100,900,100)){
   sup.tmp1 <- c()
   semi.tmp1 <- c()
+  unsup.tmp1 <- c()
   for(j in seq(1,5)){
     
     nas <- sample(nrow(others), i)
     data.selfTr <- others[nas,]
     data.selfTr[,'y'] <- NA
     trSelfT <- rbind(fixed, data.selfTr)
-    baseTree <- rpartXse(y~.,fixed[,1:58],se=0.2)
-    sup1 <- confusion(predict(baseTree,dataset[dataTest,1:57],type='class'),
+    baseTree <- rpartXse(y~.,fixed[,-(31:57)],se=0.2)
+    sup1 <- confusion(predict(baseTree,dataset[dataTest,1:30],type='class'),
                       dataset[dataTest,58])
     sup.tmp1 <- c(sup.tmp1, (sup1[2]+sup1[3])/sum(sup1))
+    
+#     learn.sup <- mixmodCluster(data=data.selfTr[,1:30], dataType = "quantitative",model=mixmodGaussianModel(), criterion= c("BIC","ICL","NEC"), nbCluster = 2)
+#     prediction.sup <- mixmodPredict(dataset[dataTest,1:30],learn.sup["bestResult"])
+#     paste("accuracy= ",mean(as.integer(dataset[dataTest,58]) == prediction.sup["partition"])*100,"%",sep="")
+#     t <- mean(as.integer(dataset[dataTest,58]) == prediction.sup["partition"])
+#     if (t > 0.5){
+#       t <- 1-t
+#     }
+#     print(t)
+    
+    unsup.tmp1 <- c(unsup.tmp1,t)
     f <- function(m,d) {
       l <- predict(m,d,type='class')
       c <- apply(predict(m,d),1,max)
       data.frame(cl=l,p=c)
     }
 
-    treeSelfT <- SelfTrain(y~ .,trSelfT[,1:58],learner('rpartXse',list(se=0.2)),'f')
-    semi1 <- confusion(predict(treeSelfT,dataset[dataTest,1:57],type='class'),dataset[dataTest,58])
+    treeSelfT <- SelfTrain(y~ .,trSelfT[,-(31:57)],learner('rpartXse',list(se=0.2)),'f')
+    semi1 <- confusion(predict(treeSelfT,dataset[dataTest,1:30],type='class'),dataset[dataTest,58])
     semi.tmp1 <- c(semi.tmp1, (semi1[2]+semi1[3])/sum(semi1))
   }
   sup.res1 <- c(sup.res1, mean(sup.tmp1))
   semi.res1 <- c(semi.res1, mean(semi.tmp1))
 }
 
-yrange <- range(c(0.1,0.2))
-plot(seq(1000,4000,100),sup.res1,ylim=yrange,col='red',type='o',pch=2)
+yrange <- range(c(0.2,0.27))
+plot(seq(100,900,100),sup.res1,ylim=yrange,col='red',type='o',pch=2)
 par(new=TRUE)
-plot(seq(1000,4000,100),semi.res1,ylim=yrange,col='blue',type='o',pch=4)
+plot(seq(100,900,100),semi.res1,ylim=yrange,col='blue',type='o',pch=4)
 #par(new=TRUE)
-
+#plot(seq(100,900,100),temp,ylim=yrange,col='blue',type='o',pch=4)
 
 
 
@@ -78,3 +91,7 @@ plot(seq(1000,4000,100),semi.res1,ylim=yrange,col='blue',type='o',pch=4)
 # confusion(predict(treeSelfT,others[nas, -58],type='class'),others[nas,]$y)
 #semi.tmp1 <- c(semi.tmp1, (semi1[2]+semi1[3])/sum(semi1))
 
+
+# 0.119 0.127 0.121 0.127 0.129 0.138 0.127 0.136 0.139
+
+# 0.151 0.143 0.143 0.143 0.143 0.151 0.143 0.147 0.151

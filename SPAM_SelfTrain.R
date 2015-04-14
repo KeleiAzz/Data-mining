@@ -7,10 +7,11 @@ dataset <- read.csv("data/spambase/data.csv",header=FALSE,sep=";")
 names <- read.csv("data/spambase/names.csv",header=FALSE,sep=";")
 names(dataset) <- sapply((1:nrow(names)),function(i) toString(names[i,1]))
 dataset$y <- as.factor(dataset$y)
-sample <- dataset[sample(nrow(dataset), 4000),]
-trainIndex <- createDataPartition(sample$y, p = .9, list = FALSE, times = 1)
-dataTrain <- sample[ trainIndex,]
-dataTest  <- sample[-trainIndex,]
+#sample <- dataset[sample(nrow(dataset), 4000),]
+trainIndex <- createDataPartition(dataset$y, p = .95, list = FALSE, times = 1)
+dataTrain <- dataset[ trainIndex,]
+dataTest  <- dataset[-trainIndex,]
+
 
 # Naive Bayes
 nb <- naiveBayes(y ~ ., dataTrain)
@@ -18,7 +19,7 @@ confusion(predict(nb,dataTest),dataTest$y)
 
 # Self Train using Bayes
 trST <- dataTrain
-nas <- sample(3600,3500)
+nas <- createDataPartition(dataTrain$y, p = 0.95, list = FALSE, times = 1)
 trST[nas,'y'] <- NA
 func <- function(m,d) {
   p <- predict(m,d,type='raw')
@@ -36,7 +37,7 @@ confusion(predict(stdTree,dataTest,type='class'),dataTest$y)
 
 # Self Train using Decision tree
 trSelfT <- dataTrain
-nas <- sample(3600,3500)
+nas <- createDataPartition(dataTrain$y, p = 0.9, list = FALSE, times = 1)
 trSelfT[nas,'y'] <- NA
 ## Learn a tree using only the labelled cases and test it
 baseTree <- rpartXse(y~ .,trSelfT[-nas,],se=0.5)
