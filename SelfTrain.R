@@ -9,7 +9,7 @@ ts <- iris[-idx,]
 stdTree <- rpartXse(Species~ .,tr,se=0.5)
 table(predict(stdTree,ts,type='class'),ts$Species)
 ## Now let us create another training set with most of the target
-## variable values unknown
+## variable values unknowns
 trSelfT <- tr
 nas <- sample(100,70)
 trSelfT[nas,'Species'] <- NA
