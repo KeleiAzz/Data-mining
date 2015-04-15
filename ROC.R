@@ -8,7 +8,7 @@ dataset$y <- as.factor(dataset$y)
 
 samples <- sample(4521,1100)
 train <- dataset[samples[1:40],]
-unlabled <- dataset[sample[201:900],]
+unlabled <- dataset[samples[201:900],]
 unlabled$y <- NA
 test <- dataset[samples[901:1100],]
 
