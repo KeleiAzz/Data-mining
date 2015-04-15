@@ -37,7 +37,7 @@ for (i in seq(100,900,100)){
   ada.tmp <- c()
   adac.tmp <- c()
   bag.tmp1 <- c()
-  for(j in seq(1,3)){
+  for(j in seq(1,10)){
     
     nas <- sample(nrow(others), i)
     data.selfTr <- others[nas,]
@@ -66,9 +66,10 @@ for (i in seq(100,900,100)){
     semi.tmp1 <- c(semi.tmp1, (semi1[4])/(semi1[2]+semi1[4]))
     
     #bagging
-    C <- matrix(nrow=nrow(dataset[dataTest,1:57]),ncol=4)
+    C <- matrix(nrow=nrow(dataset[dataTest,1:57]),ncol=15)
     n <- nrow(trSelfT)
-    for (i in 1:4) {
+    for (i in seq(1,13,3)) {
+      tt <- fixed[sample(nrow(fixed),n,replace=T),]
       t <- trSelfT[sample(n, n, replace=T), ]
       #nas <- sample(100,50)
       #t[nas,5] <- NA
@@ -77,8 +78,20 @@ for (i in seq(100,900,100)){
         c <- apply(predict(m,d),1,max)
         data.frame(cl=l,p=c)
       }
+      baseTree <- rpartXse(y~.,tt,se=0.2)
+      C[,i] <- as.character(predict(baseTree,dataset[dataTest,1:57],type='class'))
       treeSelfT <- SelfTrain(y~ .,t,learner('rpartXse',list(se=0.5)),'f')
-      C[,i] <- as.character(predict(treeSelfT,dataset[dataTest,1:57],type='class'))
+      C[,i+1] <- as.character(predict(treeSelfT,dataset[dataTest,1:57],type='class'))
+      
+      pred.ada <- function(m,d) {
+        p <- predict(m,d,type='probability')
+        data.frame(cl=colnames(p)[apply(p,1,which.max)],
+                   p=apply(p,1,max)
+        )
+      }
+      
+      adaSelfT <- SelfTrain(y ~ .,t,learner('AdaBoostM1',list(control=Weka_control(I=100))),'pred.ada')
+      C[,i+2] <- as.character(predict(adaSelfT,dataset[dataTest,1:57],type='class'))
     }
     res <- apply(C,1,bagPrediction)
     bag <- confusion(res,dataset[dataTest,58])
