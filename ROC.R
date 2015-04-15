@@ -6,9 +6,13 @@ names <- read.csv("data/spambase/names.csv",header=FALSE,sep=";")
 names(dataset) <- sapply((1:nrow(names)),function(i) toString(names[i,1]))
 dataset$y <- as.factor(dataset$y)
 
-samples <- sample(4601,1000)
-train <- dataset[samples[1:800],]
-test <- dataset[samples[801:1000],]
+samples <- sample(4521,1100)
+train <- dataset[samples[1:40],]
+unlabled <- dataset[sample[201:900],]
+unlabled$y <- NA
+test <- dataset[samples[901:1100],]
+
+semiTrain <- rbind(train,unlabled)
 
 ###################################
 #### Decistion tree
@@ -20,7 +24,7 @@ dt <- function(train,test){
   return(preds)
 }
 dt.res <- dt(train,test)
-dt.pred <- prediction( dt.res[,2], test[,58] )
+dt.pred <- prediction( dt.res[,2], test[,'y'] )
 dt.perf <- performance(dt.pred,'tpr','fpr')
 #plot(dt.perf)
 
@@ -37,7 +41,7 @@ nb <- function(train,test) {
   return(preds)
 }
 nb.res <- nb(train,test)
-nb.pred <- prediction( nb.res[,2], test[,58] )
+nb.pred <- prediction( nb.res[,2], test[,'y'] )
 nb.perf <- performance(nb.pred,'tpr','fpr')
 #plot(nb.perf)
 
@@ -53,7 +57,7 @@ nb.s <- function(train,test) {
   return(preds)
 }
 nb.s.res <- nb.s(train,test)
-nb.s.pred <- prediction( nb.s.res[,2], test[,58] )
+nb.s.pred <- prediction( nb.s.res[,2], test[,'y'] )
 nb.s.perf <- performance(nb.s.pred,'tpr','fpr')
 #plot(nb.s.perf)
 ##################################
@@ -69,7 +73,7 @@ ab <- function(train,test) {
   return(preds)
 }
 ab.res <- ab(train,test)
-ab.pred <- prediction( ab.res[,2], test[,58] )
+ab.pred <- prediction( ab.res[,2], test[,'y'] )
 ab.perf <- performance(ab.pred,'tpr','fpr')
 #plot(ab.perf)
 
@@ -92,8 +96,8 @@ nb.st <- function(train,test) {
   preds <- predict(model,test,type='raw')
   return(preds)
 }
-nb.st.res <- nb.st(train,test)
-nb.st.pred <- prediction( nb.st.res[,2], test[,58] )
+nb.st.res <- nb.st(semiTrain,test)
+nb.st.pred <- prediction( nb.st.res[,2], test[,'y'] )
 nb.st.perf <- performance(nb.st.pred,'tpr','fpr')
 #plot(nb.st.perf)
 
@@ -109,15 +113,13 @@ pred.dt <- function(m,d) {
 dt.st <- function(train,test) {
   #require(e1071,quietly=T)
   train <- train
-  #train[which(train$Insp == 'unkn'),'Insp'] <- NA
-  #train$Insp <- factor(train$Insp,levels=c('ok','fraud'))
   model <- SelfTrain(y ~ .,train,
                      learner('rpartXse',list(se=0.2)),'pred.dt')
   preds <- predict(model,test,type='prob')
   return(preds)
 }
-dt.st.res <- dt.st(train,test)
-dt.st.pred <- prediction( dt.st.res[,2], test[,58] )
+dt.st.res <- dt.st(semiTrain,test)
+dt.st.pred <- prediction( dt.st.res[,2], test[,'y'] )
 dt.st.perf <- performance(dt.st.pred,'tpr','fpr')
 #plot(dt.st.perf)
 ###################################
@@ -141,8 +143,8 @@ ab.st <- function(train,test) {
   preds <- predict(model,test,type='probability')
   return(preds)
 }
-ab.st.res <- ab.st(train,test)
-ab.st.pred <- prediction( ab.st.res[,2], test[,58] )
+ab.st.res <- ab.st(semiTrain,test)
+ab.st.pred <- prediction( ab.st.res[,2], test[,'y'] )
 ab.st.perf <- performance(ab.st.pred,'tpr','fpr')
 #plot(ab.st.perf)
 
@@ -153,8 +155,8 @@ plot(dt.perf,col='red')
 par(new=TRUE)
 plot(nb.perf,col='green')
 par(new=TRUE)
-plot(nb.s.perf,col='gray')
-par(new=TRUE)
+# plot(nb.s.perf,col='gray')
+# par(new=TRUE)
 plot(ab.perf,col='blue')
 par(new=TRUE)
 plot(nb.st.perf,col='pink')

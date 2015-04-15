@@ -197,3 +197,12 @@ adaptiveboost<-ada(x=vtrdata[,2:length(vtrdata[1,])],y=vtrdata[,1],test.x=vtedat
 summary(adaptiveboost)
 varplot(adaptiveboost)
 
+vtrdata.f <- as.data.frame(vtrdata)
+vtedata.f <- as.data.frame(vtedata)
+
+vtrdata.f$V1 <- as.factor(vtrdata.f$V1)
+vtedata.f$V1 <- as.factor(vtedata.f$V1)
+
+baseTree1 <- rpartXse(V1~.,vtrdata.f,se=0.2)
+confusion(predict(baseTree1,vtrdata.f[,2:7],type='class'),vtrdata.f$V1)
+
