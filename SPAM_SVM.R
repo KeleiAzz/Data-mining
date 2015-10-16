@@ -3,6 +3,8 @@
 #Initialization: Raw Data (http://archive.ics.uci.edu/ml/datasets/SMS+Spam+Collection), 
 #loading required packages, libraries and function declaration
 
+#Prone words less than a frequent
+
 #required package for text mining
 if(!require("tm"))
   install.packages("tm")
